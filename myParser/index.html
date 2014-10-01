@@ -8,7 +8,6 @@
     <title>Frolov Dmitry</title>
     <style>
         .node circle {
-            fill: #fff;
             stroke: #228B22;
             stroke-width: 2px;
         }
@@ -303,12 +302,13 @@
                     });
 
                 nodeEnter.append("circle")
-                    .attr("r", 22)
-                    .style("fill", "#fff");
+                    .attr("r", 13)
+                    .style("fill", function(d) { 
+						return d.children || d._children ? "#dfd" : "#fff"; });
 
                 nodeEnter.append("text")
-                    //	  .attr("y", function(d) { 
-                    //		  return d.children || d._children ? -18 : 18; })
+                    .attr("y", function(d) { 
+						return d.children || d._children ? 0 : 25; })
                     .attr("dy", ".35em")
                     .attr("text-anchor", "middle")
                     .text(function(d) {
@@ -318,9 +318,9 @@
 					
 				nodeEnter.append("text")
 					.attr("y", function(d) { 
-						return d.children || d._children ? -30 : 0; })
+						return d.children || d._children ? -25 : 0; })
 					.attr("x", function(d) { 
-                    	return d.children || d._children ? 30 : 0; })
+                    	return d.children || d._children ? 25 : 0; })
                     .attr("dy", ".35em")
                     .attr("text-anchor", "middle")
                     .text(function(d) {
