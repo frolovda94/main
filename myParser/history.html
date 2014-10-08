@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <script src="jquery-2.1.1.min.js"></script>
+    <title>Frolov Dmitry</title>
+</head>
+
+<body>
+	<a href = "index.html">Back<br></a>
+    <p id = "output"></p>
+	
+    <script>
+		$.get('http://109.120.187.196/history.php', {message:'My name is Dmitry'}, function(data)	{
+				document.getElementById("output").innerHTML = data;
+		});
+    </script>
+
+</body>
+
+</html>

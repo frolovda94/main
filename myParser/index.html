@@ -37,6 +37,7 @@
         <br>
         <input type="button" id="parse" onclick="Parse()" value="Parse">
         <input type="button" id="reset" onclick="Clear()" value="Clear">
+		<a href = "history.html" style ="margin-left:10px; font-size:16px">View requests history</a>
         <span id="output_exp"></span>
 		<span style="color:red" id="output_err"></span>
 		<span id="output_postfix"></span>
@@ -235,6 +236,7 @@
 			Clear();
 			$(".expanded").hide();
 			$(".collapsed").show();
+			$.post('http://109.120.187.196/history.php', {message:document.getElementById("input").value});
 			var result = string_correction(document.getElementById("input").value);
 			if(result.code == 0) document.getElementById("output_err").innerHTML = "<br>"+result.text;
 			else{
