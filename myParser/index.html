@@ -57,6 +57,7 @@
     <script>
 	
         treeData = [];
+		tex=[];
 		
 		function is_operator(c){
 			if(c=='+'||c=='-'||c=='*'||c=='/'||c=='^') return true;
@@ -207,20 +208,25 @@
 		function generate_tree_data(postfix_exp) {
 			var postfix_arr = [];
 			var stack = []; //стек узлов дерева, в итоге в нем останется 1 элемент - корень
+			var tex_stack = [];
 			postfix_arr = postfix_exp.split(' '); // разбили выражение на массив элементов
 			for(var i = 0; i<postfix_arr.length; i++){
 				var el = postfix_arr[i]; //Элемент выражения (число, либо оператор)
 				if(!is_operator(el)){ //если это число
 					var node = {"name": parseFloat(el), "children": [], "value": parseFloat(el)};
 					stack.push(node);
-				}
-				else {
+					tex_stack.push("#\\TCircle{"+el+"}");		
+				} else {
 					var second = stack.pop();
 					var first = stack.pop();
 					var node = {"name": el, "children": [first, second], "value": Math.floor(use_operator(first.value, second.value, el)*1000)/1000};
 					stack.push(node);
+					var tex_second = tex_stack.pop().replace(/#\\/g, "##\\").replace(/#}/g, "##}");
+					var tex_first = tex_stack.pop().replace(/#\\/g, "##\\").replace(/#}/g, "##}");
+					tex_stack.push(["#\\pstree{ \\Tcircle{"+el+"} }{",tex_first,tex_second,"#}"].join(";"));	
 				}
 			}
+			tex[0] = tex_stack[0];
 			treeData[0]=stack[0];
 		}
 		
@@ -236,7 +242,6 @@
 			Clear();
 			$(".expanded").hide();
 			$(".collapsed").show();
-			$.post('http://109.120.187.196/history.php', {message:document.getElementById("input").value});
 			var result = string_correction(document.getElementById("input").value);
 			if(result.code == 0) document.getElementById("output_err").innerHTML = "<br>"+result.text;
 			else{
@@ -244,6 +249,7 @@
 				document.getElementById("output_postfix").innerHTML = "<br>Postfix notation:\t" + postfix_form(result.text);
 				generate_tree_data(postfix_form(result.text));
 				document.getElementById("output_count").innerHTML = "<br>Result:\t" + treeData[0].value; //Округляем до 3х знаков
+				$.post('http://109.120.187.196/history.php', {message:document.getElementById("input").value, tex:tex[0].replace(/#/g, "\t")});
 				Draw();
 			}
 		}

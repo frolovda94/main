@@ -1,0 +1,10 @@
+\documentclass{article}
+\usepackage{pst-tree,ragged2e,amsmath}
+\title{Regular Expressions. Requests history}
+\author{http://109.120.187.196}
+\begin{document}
+	\maketitle
+	\smallskip
+	\begin{center}
+	\clubpenalty=10000
+	\widowpenalty=10000
