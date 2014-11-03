@@ -215,7 +215,7 @@
 				if(!is_operator(el)){ //если это число
 					var node = {"name": parseFloat(el), "children": [], "value": parseFloat(el)};
 					stack.push(node);
-					tex_stack.push("#\\TCircle{"+el+"}");		
+					tex_stack.push("#\\TR{"+el+"}");		
 				} else {
 					var second = stack.pop();
 					var first = stack.pop();
@@ -249,7 +249,7 @@
 				document.getElementById("output_postfix").innerHTML = "<br>Postfix notation:\t" + postfix_form(result.text);
 				generate_tree_data(postfix_form(result.text));
 				document.getElementById("output_count").innerHTML = "<br>Result:\t" + treeData[0].value; //Округляем до 3х знаков
-				$.post('http://109.120.187.196/history.php', {message:document.getElementById("input").value, tex:tex[0].replace(/#/g, "\t")});
+				$.post('http://109.120.187.196/history.php', {message:document.getElementById("input").value, tex:tex[0].replace(/#/g, "\t").replace("pstree","pstree[levelsep=15mm]")});
 				Draw();
 			}
 		}

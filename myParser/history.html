@@ -8,12 +8,14 @@
 </head>
 
 <body>
-	<a href = "index.html">Back<br></a>
-    <p id = "output">Waiting for answer from sever...</p>
+	<button onclick="window.location.href='index.html'">Back</button>
+	<button id = "download_tex" disabled="true" onclick="window.location.href='http://109.120.187.196/tex_download.tex'">Download as .tex</button>
+    <p id = "output">Waiting for answer from server...</p>
 	
     <script>
 		$.get('http://109.120.187.196/history.php', {message:''}, function(data)	{
 				document.getElementById("output").innerHTML = data;
+				document.getElementById("download_tex").disabled = false;
 		});
     </script>
 
