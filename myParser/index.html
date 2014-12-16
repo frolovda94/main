@@ -27,11 +27,13 @@
     <p style="color: steelblue; font-family:Andale Mono; font-size:18px">Welcome! Enter a regular expression. Allowed input: 0-9, ., +, -, *, /, ^, (, ).
 		<span style="padding-right:50px;float:right; color:red">by Frolov Dmitry<br>Last update: 16.09.2014</span>
         <br>
-        <span class="expanded" style="color: #228B22; font-family:Courier New; font-weight:bold"> <br>(1.7+.1)*2<br>(1+7)*(24/7+3)<br>72+37*(25^2-1)<br>-5+11-(-(-(-3)))<br>(-(-4+2))^2<br></span>
+        <span class="expanded" style="color: #228B22; font-family:Courier New; font-weight:bold"> <br>(1.7+.1)*2<br>2^2-3^2<br>72+37*(25^2-1)<br>-5+11-(-(-(-3)))<br>(-(-4+2))^2<br></span>
         <span class="collapsed"></span>
         <a href="javascript:void(0)" class="collapsed">Examples</a>
         <a href="javascript:void(0)" class="expanded">Collapse</a>
-        <br>
+        <pre><input type="checkbox" onclick="check(1)" id="checkbox_exp"> a^2-b^2    ->   (a+b)(a-b)</pre>
+		<pre><input type="checkbox" onclick="check(2)" id="checkbox_coll"> (a+b)(a-b) ->    a^2-b^2</pre>
+		<br>
 		<br>
         <input type="text" id="input" class="custom" size="80" autofocus>
         <br>
@@ -52,6 +54,11 @@
                 $(this).parent().children(".expanded, .collapsed").toggle();
             });
         });
+		
+		function check(a){
+			if (a==1)	if(document.getElementById("checkbox_coll").checked) document.getElementById("checkbox_coll").checked = false;
+			if (a==2)	if(document.getElementById("checkbox_exp").checked) document.getElementById("checkbox_exp").checked = false;
+		}
     </script>
 
     <script>
@@ -206,6 +213,8 @@
 		}
 		
 		function generate_tree_data(postfix_exp) {
+			var exp = document.getElementById("checkbox_exp").checked;
+			var coll = document.getElementById("checkbox_coll").checked;
 			var postfix_arr = [];
 			var stack = []; //стек узлов дерева, в итоге в нем останется 1 элемент - корень
 			var tex_stack = [];
@@ -219,7 +228,19 @@
 				} else {
 					var second = stack.pop();
 					var first = stack.pop();
-					var node = {"name": el, "children": [first, second], "value": Math.floor(use_operator(first.value, second.value, el)*1000)/1000};
+					var node;
+					if(exp&&el=='-'&&is_square(first)&&is_square(second)){
+						first = first.children[0];
+						second = second.children[0];
+						var plus =  JSON.parse(JSON.stringify({"name": '+', "children": [first, second], "value": Math.floor(use_operator(first.value, second.value, '+')*1000)/1000}));
+						var minus = JSON.parse(JSON.stringify({"name": '-', "children": [first, second], "value": Math.floor(use_operator(first.value, second.value, '-')*1000)/1000}));
+						node = {"name": '*', "children": [plus, minus] , "value": Math.floor(use_operator(plus.value, minus.value, '*')*1000)/1000};
+					} else
+						node = {"name": el, "children": [first, second], "value": Math.floor(use_operator(first.value, second.value, el)*1000)/1000};
+					if (coll&&el=='*'){
+						var r = try_to_collapse(node);
+						if(r!="fail") node = r;
+					}
 					stack.push(node);
 					var tex_second = tex_stack.pop().replace(/#\\/g, "##\\").replace(/#}/g, "##}");
 					var tex_first = tex_stack.pop().replace(/#\\/g, "##\\").replace(/#}/g, "##}");
@@ -228,6 +249,38 @@
 			}
 			tex[0] = tex_stack[0];
 			treeData[0]=stack[0];
+		}
+		
+		function is_square(el){
+			if(el.name=='^' && el.children[1].name=='2') return true;
+			return false;
+		}
+		
+		function try_to_collapse(el){
+			if(el.children[0].name=='+'&&el.children[1].name=='-' || el.children[0].name=='-'&&el.children[1].name=='+'){
+				var minus;
+				var plus;
+				if(el.children[0].name=='-'){
+					minus = el.children[0];
+					plus = el.children[1];
+				} else {
+					minus = el.children[1];
+					plus = el.children[0];
+				}
+				var a = minus.children[0];
+				var b = minus.children[1];
+				if(equals(a,plus.children[0])&&equals(b,plus.children[1]) || equals(b,plus.children[0])&&equals(a,plus.children[1])){
+					var node_a = {"name": '^', "children": [a, {"name": "2", "children": [], "value": 2}], "value": Math.floor(use_operator(a.value, 2, '^')*1000)/1000};
+					var node_b = {"name": '^', "children": [b, {"name": "2", "children": [], "value": 2}], "value": Math.floor(use_operator(b.value, 2, '^')*1000)/1000};
+					return {"name": '-', "children": [node_a, node_b], "value": Math.floor(use_operator(node_a.value, node_b.value, '-')*1000)/1000};
+				}
+			}
+			return "fail";
+		}
+		
+		function equals (a,b){
+			if(JSON.stringify(a)==JSON.stringify(b)) return true;
+			return false; 
 		}
 		
 		function use_operator(a,b,op){
